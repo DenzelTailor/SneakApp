@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>SneakApp</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QScrollArea" name="scrollArea">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContents">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>782</width>
+         <height>561</height>
+        </rect>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_Scroll">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_Welcome">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuMain">
+    <property name="title">
+     <string>Menü</string>
+    </property>
+    <widget class="QMenu" name="menu_ChangeOrder">
+     <property name="title">
+      <string>Sortierung ändern</string>
+     </property>
+     <addaction name="action_BuyDateOrderAsc"/>
+     <addaction name="action_BuyDateOrderDesc"/>
+     <addaction name="separator"/>
+     <addaction name="action_BrandOrderAsc"/>
+     <addaction name="action_BrandOrderDesc"/>
+     <addaction name="separator"/>
+     <addaction name="action_ReleaseDateOrderAsc"/>
+     <addaction name="action_ReleaseDateOrderDesc"/>
+     <addaction name="separator"/>
+     <addaction name="action_PriceOrderAsc"/>
+     <addaction name="action_PriceOrderDesc"/>
+    </widget>
+    <addaction name="action_AddSneaker"/>
+    <addaction name="action_Import"/>
+    <addaction name="separator"/>
+    <addaction name="menu_ChangeOrder"/>
+    <addaction name="separator"/>
+    <addaction name="action_Statistics"/>
+    <addaction name="separator"/>
+    <addaction name="action_Quit"/>
+   </widget>
+   <addaction name="menuMain"/>
+  </widget>
+  <action name="action_AddSneaker">
+   <property name="text">
+    <string>Sneaker hinzufügen...</string>
+   </property>
+  </action>
+  <action name="action_BrandOrderAsc">
+   <property name="text">
+    <string>Marke ↑</string>
+   </property>
+  </action>
+  <action name="action_BrandOrderDesc">
+   <property name="text">
+    <string>Marke ↓</string>
+   </property>
+  </action>
+  <action name="action_ReleaseDateOrderAsc">
+   <property name="text">
+    <string>Releasedatum ↑</string>
+   </property>
+  </action>
+  <action name="action_ReleaseDateOrderDesc">
+   <property name="text">
+    <string>Releasedatum ↓</string>
+   </property>
+  </action>
+  <action name="action_BuyDateOrderAsc">
+   <property name="text">
+    <string>Kaufdatum ↑</string>
+   </property>
+  </action>
+  <action name="action_BuyDateOrderDesc">
+   <property name="text">
+    <string>Kaufdatum ↓</string>
+   </property>
+  </action>
+  <action name="action_PriceOrderAsc">
+   <property name="text">
+    <string>Preis ↑</string>
+   </property>
+  </action>
+  <action name="action_PriceOrderDesc">
+   <property name="text">
+    <string>Preis ↓</string>
+   </property>
+  </action>
+  <action name="action_Quit">
+   <property name="text">
+    <string>Beenden</string>
+   </property>
+  </action>
+  <action name="action_Statistics">
+   <property name="text">
+    <string>Statistiken...</string>
+   </property>
+  </action>
+  <action name="action_Import">
+   <property name="text">
+    <string>Liste importieren...</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>
