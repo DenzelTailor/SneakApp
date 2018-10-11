@@ -5,6 +5,7 @@
 #include <QDate>
 #include <QDebug>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QFrame>
 #include <QGraphicsColorizeEffect>
 #include <QGridLayout>
@@ -17,6 +18,8 @@
 #include <QScrollBar>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlQuery>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -192,20 +195,6 @@ void MainWindow::calcMaxColumns(int *calcSpace, const int availHSpace, const int
     m_maxColumns--;
 }
 
-void MainWindow::clearScrollGrid()
-{
-    QLayoutItem *item;
-
-    while ((item = ui->gridLayout_Scroll->takeAt(0)))
-    {
-        if (item->widget())
-        {
-            delete item->widget();
-        }
-        delete item;
-    }
-}
-
 void MainWindow::calcThumbnailSize(int *calcSpace, const int availHSpace, const int maxThumbSize, const int horiSpacing)
 {
     while (*calcSpace <= availHSpace)
@@ -220,6 +209,54 @@ void MainWindow::calcThumbnailSize(int *calcSpace, const int availHSpace, const 
     {
         m_thumbSize = maxThumbSize;
     }
+}
+
+void MainWindow::clearScrollGrid()
+{
+    QLayoutItem *item;
+
+    while ((item = ui->gridLayout_Scroll->takeAt(0)))
+    {
+        if (item->widget())
+        {
+            delete item->widget();
+        }
+        delete item;
+    }
+}
+
+void MainWindow::createDatabase()
+{
+    QSqlDatabase db;
+    db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName(QDir::currentPath() + "/sneakers.sqlite");
+
+    if (!db.open())
+    {
+        qDebug() << "error opening database";
+    }
+
+    QString query = "CREATE TABLE sneakertable ("
+                    "ID integer,"
+                    "Brand VARCHAR(100),"
+                    "Model VARCHAR(100),"
+                    "Colorway VARCHAR(100),"
+                    "ModelNumber VARCHAR(100),"
+                    "ReleaseDate DATETIME,"
+                    "BuyingDate DATETIME,"
+                    "Price double,"
+                    "Size double,"
+                    "Seller VARCHAR(100));";
+
+    QSqlQuery qry;
+
+    if (!qry.exec(query))
+    {
+        qDebug() << "error creating table";
+    }
+
+    updateDatabase();
+    db.close();
 }
 
 void MainWindow::deleteItem(QList<int> deleteList)
@@ -338,12 +375,14 @@ void MainWindow::loadSettings()
     clearScrollGrid();
     initScrollGrid();
 
-    QSettings savedSneakers(QDir::currentPath() + "/sneakers/sneakers.ini", QSettings::IniFormat);
+    QSettings savedSneakers(QDir::currentPath() + "/sneakers.ini", QSettings::IniFormat);
     QList<QVariant> savedList = savedSneakers.value("sneakerlist").toList();
     for (int i = 0; i < savedList.size(); i++)
     {
         addSneaker(savedList[i]);
     }
+
+    createDatabase();
 }
 
 void MainWindow::saveSettings()
@@ -356,8 +395,47 @@ void MainWindow::saveSettings()
     windowConfig.setValue("maximized", this->isMaximized());
     windowConfig.endGroup();
 
-    QSettings savedSneakers(QDir::currentPath() + "/sneakers/sneakers.ini", QSettings::IniFormat);
+    QSettings savedSneakers(QDir::currentPath() + "/sneakers.ini", QSettings::IniFormat);
     savedSneakers.setValue("sneakerlist", m_sneakerList);
+
+
+}
+
+void MainWindow::updateDatabase()
+{
+    QSqlQuery qry;
+
+    for (int i = 0; i < m_sneakerList.size(); i++)
+    {
+        qry.prepare("INSERT INTO sneakerTable ("
+                    "ID,"
+                    "Brand,"
+                    "Model,"
+                    "Colorway,"
+                    "ModelNumber,"
+                    "ReleaseDate,"
+                    "BuyingDate,"
+                    "Price,"
+                    "Size,"
+                    "Seller)"
+                    "VALUES (?,?,?,?,?,?,?,?,?,?);");
+
+        qry.addBindValue(i+1);
+        qry.addBindValue(m_sneakerList[i].toList()[0].toString());
+        qry.addBindValue(m_sneakerList[i].toList()[1].toString());
+        qry.addBindValue(m_sneakerList[i].toList()[2].toString());
+        qry.addBindValue(m_sneakerList[i].toList()[3].toString());
+        qry.addBindValue(m_sneakerList[i].toList()[4].toDateTime());
+        qry.addBindValue(m_sneakerList[i].toList()[5].toDateTime());
+        qry.addBindValue(m_sneakerList[i].toList()[6].toDouble());
+        qry.addBindValue(m_sneakerList[i].toList()[7].toDouble());
+        qry.addBindValue(m_sneakerList[i].toList()[8].toString());
+
+        if (!qry.exec())
+        {
+            qDebug() << "error adding values to db";
+        }
+    }
 }
 
 //---------------------------------------Events---------------------------------------

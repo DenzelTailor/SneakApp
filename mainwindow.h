@@ -45,11 +45,13 @@ private:
     void calcMaxColumns(int *calcSpace, const int availHSpace, const int minThumbSize, const int horiSpacing);
     void calcThumbnailSize(int *calcSpace, const int availHSpace, const int maxThumbSize, const int horiSpacing);
     void clearScrollGrid();
+    void createDatabase();
     void deleteItem(QList<int> deleteList);
     void editSneaker(const QVariant &sneakerVar, int index);
     void initScrollGrid();
     void loadSettings();
     void saveSettings();
+    void updateDatabase();
 
     void closeEvent(QCloseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
