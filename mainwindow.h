@@ -4,6 +4,7 @@
 #include "dialog_data.h"
 #include "dialog_statistics.h"
 #include "qclicklabel.h"
+#include "sneakeritem.h"
 #include "ui_mainwindow.h"
 
 #include <QMainWindow>
@@ -30,24 +31,24 @@ private:
     int m_thumbSize;
     int m_row;
     QList<int> m_selectList;
-    QList<QVariant> m_sneakerList;
+    QList<SneakerItem> m_sneakerList;
     QPoint m_mouseOrigin;
     QRubberBand *m_rubberband;
     QString m_path;
     QTimer *m_resizeTimer;
 
     int calcAvailSpace(const int leftMargin, const int rightMargin);
-    static bool brandLessThan(const QVariant &var1, const QVariant &var2);
-    static bool buyDateLessThan(const QVariant &var1, const QVariant &var2);
-    static bool priceLessThan(const QVariant &var1, const QVariant &var2);
-    static bool relDateLessThan(const QVariant &var1, const QVariant &var2);
-    void addSneaker(const QVariant &sneakerVar);
+    static bool brandLessThan(const SneakerItem &sneaker1, const SneakerItem &sneaker2);
+    static bool buyDateLessThan(const SneakerItem &sneaker1, const SneakerItem &sneaker2);
+    static bool priceLessThan(const SneakerItem &sneaker1, const SneakerItem &sneaker2);
+    static bool relDateLessThan(const SneakerItem &sneaker1, const SneakerItem &sneaker2);
+    void addSneaker(const SneakerItem &sneaker);
     void calcMaxColumns(int *calcSpace, const int availHSpace, const int minThumbSize, const int horiSpacing);
     void calcThumbnailSize(int *calcSpace, const int availHSpace, const int maxThumbSize, const int horiSpacing);
     void clearScrollGrid();
     void createDatabase();
     void deleteItem(QList<int> deleteList);
-    void editSneaker(const QVariant &sneakerVar, int index);
+    void editSneaker(const SneakerItem &sneaker, int index);
     void initScrollGrid();
     void loadSettings();
     void saveSettings();

@@ -38,7 +38,7 @@ Dialog_Statistics::~Dialog_Statistics()
     delete ui;
 }
 
-void Dialog_Statistics::setData(const QList<QVariant> &sneakerList)
+void Dialog_Statistics::setData(const QList<SneakerItem> &sneakerList)
 {
     m_sneakerList = sneakerList;
     setTable();
@@ -55,7 +55,7 @@ void Dialog_Statistics::setBrandDiagram()
 
     for (int i = 0; i < m_sneakerList.size(); i++)
     {
-        brandList.append(m_sneakerList[i].toList()[0].toString());
+        brandList.append(m_sneakerList[i].getBrand());
     }
 
     for (int i = 0; i < brandList.size(); i++)
@@ -93,9 +93,9 @@ void Dialog_Statistics::setPriceTimeDiagram()
 
     for (int i = 0; i < m_sneakerList.size(); i++)
     {
-        buyDateList.append(m_sneakerList[i].toList()[5].toDateTime());
-        priceList.append(m_sneakerList[i].toList()[6].toDouble());
-        priceSum += m_sneakerList[i].toList()[6].toDouble();
+        buyDateList.append(QDateTime(m_sneakerList[i].getBuydate()));
+        priceList.append(m_sneakerList[i].getPrice());
+        priceSum += m_sneakerList[i].getPrice();
     }
 
     for (int i = 0; i < m_sneakerList.size(); i++)
@@ -142,12 +142,33 @@ void Dialog_Statistics::setTable()
 
     for (int i = 0; i < m_sneakerList.size(); i++)
     {
-        for (int j = 0; j <= 8; j++)
-        {
-            QTableWidgetItem *item = new QTableWidgetItem;
-            item->setData(Qt::EditRole, m_sneakerList[i].toList()[j]);
-            m_tableWidget->setItem(i, j, item);
-        }
+        QTableWidgetItem *itemBrand = new QTableWidgetItem;
+        itemBrand->setData(Qt::EditRole, m_sneakerList[i].getBrand());
+        m_tableWidget->setItem(i, 0, itemBrand);
+        QTableWidgetItem *itemModel = new QTableWidgetItem;
+        itemModel->setData(Qt::EditRole, m_sneakerList[i].getModel());
+        m_tableWidget->setItem(i, 1, itemModel);
+        QTableWidgetItem *itemCW = new QTableWidgetItem;
+        itemCW->setData(Qt::EditRole, m_sneakerList[i].getColorway());
+        m_tableWidget->setItem(i, 2, itemCW);
+        QTableWidgetItem *itemModelnr = new QTableWidgetItem;
+        itemModelnr->setData(Qt::EditRole, m_sneakerList[i].getModelnr());
+        m_tableWidget->setItem(i, 3, itemModelnr);
+        QTableWidgetItem *itemReldate = new QTableWidgetItem;
+        itemReldate->setData(Qt::EditRole, m_sneakerList[i].getReleasedate());
+        m_tableWidget->setItem(i, 4, itemReldate);
+        QTableWidgetItem *itemBuydate = new QTableWidgetItem;
+        itemBuydate->setData(Qt::EditRole, m_sneakerList[i].getBuydate());
+        m_tableWidget->setItem(i, 5, itemBuydate);
+        QTableWidgetItem *itemPrice = new QTableWidgetItem;
+        itemPrice->setData(Qt::EditRole, m_sneakerList[i].getPrice());
+        m_tableWidget->setItem(i, 6, itemPrice);
+        QTableWidgetItem *itemSeller = new QTableWidgetItem;
+        itemSeller->setData(Qt::EditRole, m_sneakerList[i].getSeller());
+        m_tableWidget->setItem(i, 7, itemSeller);
+        QTableWidgetItem *itemSize = new QTableWidgetItem;
+        itemSize->setData(Qt::EditRole, m_sneakerList[i].getSize());
+        m_tableWidget->setItem(i, 8, itemSize);
     }
 
     m_tableWidget->sortItems(0, m_sortOrders[0]);

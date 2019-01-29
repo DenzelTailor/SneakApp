@@ -24,26 +24,26 @@ Dialog_Data::~Dialog_Data()
     delete ui;
 }
 
-void Dialog_Data::setData(const QVariant &varData)
+void Dialog_Data::setData(const SneakerItem &sneaker)
 {
     QImage image1_box, image2_box;
 
-    m_variant = varData;
-    m_image1 = (varData.toList()[9]).value<QImage>();
-    m_image2 = (varData.toList()[10]).value<QImage>();
+    m_sneaker = sneaker;
+    m_image1 = sneaker.getImage1();
+    m_image2 = sneaker.getImage2();
 
     image1_box = m_image1.scaled(69,69, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     image2_box = m_image2.scaled(69,69, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
-    ui->lineEdit_Brand->setText((varData.toList()[0]).toString());
-    ui->lineEdit_Model->setText((varData.toList()[1]).toString());
-    ui->lineEdit_CW->setText((varData.toList()[2]).toString());
-    ui->lineEdit_Modelnr->setText((varData.toList()[3]).toString());
-    ui->dateEdit_Releasedate->setDate((varData.toList()[4]).toDate());
-    ui->dateEdit_Buydate->setDate((varData.toList()[5]).toDate());
-    ui->doubleSpinBox_Price->setValue((varData.toList()[6]).toDouble());
-    ui->lineEdit_Seller->setText((varData.toList()[7]).toString());
-    ui->doubleSpinBox_Size->setValue((varData.toList()[8]).toDouble());
+    ui->lineEdit_Brand->setText(sneaker.getBrand());
+    ui->lineEdit_Model->setText(sneaker.getModel());
+    ui->lineEdit_CW->setText(sneaker.getColorway());
+    ui->lineEdit_Modelnr->setText(sneaker.getModelnr());
+    ui->dateEdit_Releasedate->setDate(sneaker.getReleasedate());
+    ui->dateEdit_Buydate->setDate(sneaker.getBuydate());
+    ui->doubleSpinBox_Price->setValue(sneaker.getPrice());
+    ui->lineEdit_Seller->setText(sneaker.getSeller());
+    ui->doubleSpinBox_Size->setValue(sneaker.getSize());
     ui->label_PreviewPic1->setPixmap(QPixmap::fromImage(image1_box));
     ui->label_PreviewPic2->setPixmap(QPixmap::fromImage(image2_box));
 }
@@ -51,23 +51,31 @@ void Dialog_Data::setData(const QVariant &varData)
 //---------------------------------------Slots---------------------------------------
 void Dialog_Data::on_buttonBox_accepted()
 {
-    QVariant brand, model, cw, modelnr, releasedate, buydate, price, seller, shoesize, image1, image2;
-    QList<QVariant> varList;
+    QString brand;
+    QString model;
+    QString colorway;
+    QString modelnr;
+    QDate releasedate;
+    QDate buydate;
+    double price;
+    QString seller;
+    double size;
+    QImage image1;
+    QImage image2;
 
-    brand = QVariant(ui->lineEdit_Brand->text());
-    model = QVariant(ui->lineEdit_Model->text());
-    cw = QVariant(ui->lineEdit_CW->text());
-    modelnr = QVariant(ui->lineEdit_Modelnr->text());
-    releasedate = QVariant(ui->dateEdit_Releasedate->date());
-    buydate = QVariant(ui->dateEdit_Buydate->date());
-    price = QVariant(ui->doubleSpinBox_Price->value());
-    seller = QVariant(ui->lineEdit_Seller->text());
-    shoesize = QVariant(ui->doubleSpinBox_Size->value());
+    brand = ui->lineEdit_Brand->text();
+    model = ui->lineEdit_Model->text();
+    colorway = ui->lineEdit_CW->text();
+    modelnr = ui->lineEdit_Modelnr->text();
+    releasedate = ui->dateEdit_Releasedate->date();
+    buydate = ui->dateEdit_Buydate->date();
+    price = ui->doubleSpinBox_Price->value();
+    seller = ui->lineEdit_Seller->text();
+    size = ui->doubleSpinBox_Size->value();
     image1 = m_image1;
     image2 = m_image2;
 
-    varList << brand << model << cw << modelnr << releasedate << buydate << price << seller << shoesize << image1 << image2;
-    m_variant = QVariant(varList);
+    m_sneaker = SneakerItem(brand, model, colorway, modelnr, releasedate, buydate, price, seller, size, image1, image2);
 
     m_image1 = QImage();
     m_image2 = QImage();

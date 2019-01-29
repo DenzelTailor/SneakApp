@@ -1,6 +1,8 @@
 #ifndef DIALOG_STATISTICS_H
 #define DIALOG_STATISTICS_H
 
+#include "sneakeritem.h"
+
 #include <QDialog>
 #include <QTableWidget>
 #include <QtCharts/QChartView>
@@ -19,14 +21,14 @@ public:
     explicit Dialog_Statistics(QWidget *parent = nullptr);
     ~Dialog_Statistics();
 
-    void setData(const QList<QVariant> &sneakerList);
+    void setData(const QList<SneakerItem> &sneakerList);
 
 private:
     Ui::Dialog_Statistics *ui;
 
     QChartView *m_pieChartView;
     QChartView *m_priceChartView;
-    QList<QVariant> m_sneakerList;
+    QList<SneakerItem> m_sneakerList;
     QList<Qt::SortOrder> m_sortOrders;
     QTableWidget *m_tableWidget;
 

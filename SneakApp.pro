@@ -29,14 +29,16 @@ SOURCES += \
         mainwindow.cpp \
     dialog_data.cpp \
     dialog_statistics.cpp \
-    qclicklabel.cpp
+    qclicklabel.cpp \
+    sneakeritem.cpp
 
 HEADERS += \
         mainwindow.h \
     mainwindow.h \
     dialog_data.h \
     dialog_statistics.h \
-    qclicklabel.h
+    qclicklabel.h \
+    sneakeritem.h
 
 FORMS += \
         mainwindow.ui \

@@ -1,6 +1,8 @@
 #ifndef DIALOG_DATA_H
 #define DIALOG_DATA_H
 
+#include "sneakeritem.h"
+
 #include <QDialog>
 #include <QVariant>
 
@@ -16,8 +18,8 @@ public:
     explicit Dialog_Data(QWidget *parent = nullptr);
     ~Dialog_Data();
 
-    QVariant getData(){ return m_variant; }
-    void setData(const QVariant &varData);
+    SneakerItem getData() const { return m_sneaker; }
+    void setData(const SneakerItem &sneaker);
 
 private:
     Ui::Dialog_Data *ui;
@@ -25,7 +27,7 @@ private:
     QImage m_image1;
     QImage m_image2;
     QString m_path;
-    QVariant m_variant;
+    SneakerItem m_sneaker;
 
 private slots:
     void on_buttonBox_accepted();

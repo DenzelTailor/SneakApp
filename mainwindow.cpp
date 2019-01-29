@@ -60,42 +60,42 @@ int MainWindow::calcAvailSpace(const int leftMargin, const int rightMargin)
     return (this->geometry().width() - leftMargin - rightMargin - this->style()->pixelMetric(QStyle::PM_ScrollBarExtent));
 }
 
-bool MainWindow::brandLessThan(const QVariant &var1, const QVariant &var2)
+bool MainWindow::brandLessThan(const SneakerItem &sneaker1, const SneakerItem &sneaker2)
 {
-    if ((var1.toList()[0]).toString() == (var2.toList()[0]).toString())
+    if (sneaker1.getBrand() == sneaker2.getBrand())
     {
-        return (var1.toList()[1]).toString() < (var2.toList()[1]).toString();
+        return sneaker1.getModel() < sneaker2.getModel();
     }
     else
     {
-        return (var1.toList()[0]).toString() < (var2.toList()[0]).toString();
+        return sneaker1.getBrand() < sneaker2.getBrand();
     }
 }
 
-bool MainWindow::buyDateLessThan(const QVariant &var1, const QVariant &var2)
+bool MainWindow::buyDateLessThan(const SneakerItem &sneaker1, const SneakerItem &sneaker2)
 {
-    return (var1.toList()[5]).toDate() < (var2.toList()[5]).toDate();
+    return sneaker1.getBuydate() < sneaker2.getBuydate();
 }
 
-bool MainWindow::priceLessThan(const QVariant &var1, const QVariant &var2)
+bool MainWindow::priceLessThan(const SneakerItem &sneaker1, const SneakerItem &sneaker2)
 {
-    return (var1.toList()[6]).toDouble() < (var2.toList()[6]).toDouble();
+    return sneaker1.getPrice() < sneaker2.getPrice();
 }
 
-bool MainWindow::relDateLessThan(const QVariant &var1, const QVariant &var2)
+bool MainWindow::relDateLessThan(const SneakerItem &sneaker1, const SneakerItem &sneaker2)
 {
-    return (var1.toList()[4]).toDate() < (var2.toList()[4]).toDate();
+    return sneaker1.getReleasedate() < sneaker2.getReleasedate();
 }
 
-void MainWindow::addSneaker(const QVariant &sneakerVar)
+void MainWindow::addSneaker(const SneakerItem &sneaker)
 {
     QImage imageClick;
 
-    QString brand = (sneakerVar.toList()[0]).toString();
-    QString model = (sneakerVar.toList()[1]).toString();
-    QImage image1 = (sneakerVar.toList()[9]).value<QImage>();
+    QString brand = sneaker.getBrand();
+    QString model = sneaker.getModel();
+    QImage image1 = sneaker.getImage1();
 
-    m_sneakerList.append(sneakerVar);
+    m_sneakerList.append(sneaker);
     int sneakerIndex = m_sneakerList.size();
 
     if (image1.isNull())
@@ -261,7 +261,7 @@ void MainWindow::createDatabase()
 
 void MainWindow::deleteItem(QList<int> deleteList)
 {
-    QList<QVariant> copyList = m_sneakerList;
+    QList<SneakerItem> copyList = m_sneakerList;
     m_sneakerList.clear();
 
     for (int j = deleteList.size() - 1; j >= 0; j--)
@@ -278,13 +278,13 @@ void MainWindow::deleteItem(QList<int> deleteList)
     }
 }
 
-void MainWindow::editSneaker(const QVariant &sneakerVar, int index)
+void MainWindow::editSneaker(const SneakerItem &sneaker, int index)
 {
     QImage imageClick;
 
-    QString brand = (sneakerVar.toList()[0]).toString();
-    QString model = (sneakerVar.toList()[1]).toString();
-    QImage image1 = (sneakerVar.toList()[9]).value<QImage>();
+    QString brand = sneaker.getBrand();
+    QString model = sneaker.getModel();
+    QImage image1 = sneaker.getImage1();
 
     if (image1.isNull())
     {
@@ -305,7 +305,7 @@ void MainWindow::editSneaker(const QVariant &sneakerVar, int index)
     painter.setRenderHint(QPainter::Antialiasing);
     painter.drawRoundedRect(0, 0, imageClick.width(), imageClick.height(), 2, 2);
 
-    m_sneakerList.replace(index-1, sneakerVar);
+    m_sneakerList.replace(index-1, sneaker);
 
     QClickLabel *clickLabelOld = ui->scrollArea->findChild<QClickLabel *>(QString("clickLabelObj %1").arg(index));
     clickLabelOld->setPixmap(QPixmap::fromImage(rounded));
@@ -375,8 +375,9 @@ void MainWindow::loadSettings()
     clearScrollGrid();
     initScrollGrid();
 
+    qRegisterMetaTypeStreamOperators<SneakerItem>("SneakerItem");
     QSettings savedSneakers(QDir::currentPath() + "/sneakers.ini", QSettings::IniFormat);
-    QList<QVariant> savedList = savedSneakers.value("sneakerlist").toList();
+    QList<SneakerItem> savedList = savedSneakers.value("sneakerlist").value<QList<SneakerItem>>();
     for (int i = 0; i < savedList.size(); i++)
     {
         addSneaker(savedList[i]);
@@ -395,10 +396,9 @@ void MainWindow::saveSettings()
     windowConfig.setValue("maximized", this->isMaximized());
     windowConfig.endGroup();
 
+    qRegisterMetaTypeStreamOperators<SneakerItem>("SneakerItem");
     QSettings savedSneakers(QDir::currentPath() + "/sneakers.ini", QSettings::IniFormat);
-    savedSneakers.setValue("sneakerlist", m_sneakerList);
-
-
+    savedSneakers.setValue("sneakerlist", QVariant::fromValue(m_sneakerList));
 }
 
 void MainWindow::updateDatabase()
@@ -421,15 +421,15 @@ void MainWindow::updateDatabase()
                     "VALUES (?,?,?,?,?,?,?,?,?,?);");
 
         qry.addBindValue(i+1);
-        qry.addBindValue(m_sneakerList[i].toList()[0].toString());
-        qry.addBindValue(m_sneakerList[i].toList()[1].toString());
-        qry.addBindValue(m_sneakerList[i].toList()[2].toString());
-        qry.addBindValue(m_sneakerList[i].toList()[3].toString());
-        qry.addBindValue(m_sneakerList[i].toList()[4].toDateTime());
-        qry.addBindValue(m_sneakerList[i].toList()[5].toDateTime());
-        qry.addBindValue(m_sneakerList[i].toList()[6].toDouble());
-        qry.addBindValue(m_sneakerList[i].toList()[7].toDouble());
-        qry.addBindValue(m_sneakerList[i].toList()[8].toString());
+        qry.addBindValue(m_sneakerList[i].getBrand());
+        qry.addBindValue(m_sneakerList[i].getModel());
+        qry.addBindValue(m_sneakerList[i].getColorway());
+        qry.addBindValue(m_sneakerList[i].getModelnr());
+        qry.addBindValue(m_sneakerList[i].getReleasedate());
+        qry.addBindValue(m_sneakerList[i].getBuydate());
+        qry.addBindValue(m_sneakerList[i].getPrice());
+        qry.addBindValue(m_sneakerList[i].getSize());
+        qry.addBindValue(m_sneakerList[i].getSeller());
 
         if (!qry.exec())
         {
@@ -527,40 +527,38 @@ void MainWindow::action_EditSneaker_triggered()
     QAction *action = qobject_cast<QAction *>(sender());
     int index = action->data().toInt();
 
-    QVariant varData;
     Dialog_Data dialogedit;
 
-    varData = m_sneakerList[index-1];
+    SneakerItem sneaker = m_sneakerList[index-1];
 
     dialogedit.setModal(true);
-    dialogedit.setData(varData);
+    dialogedit.setData(sneaker);
 
     if (dialogedit.exec()==QDialog::Accepted)
     {
-        if (varData != dialogedit.getData())
+        if (sneaker != dialogedit.getData())
         {
-            varData = dialogedit.getData();
-            editSneaker(varData, index);
+            sneaker = dialogedit.getData();
+            editSneaker(sneaker, index);
         }
     }
 }
 
 void MainWindow::action_EditSneaker_triggered(int index)
 {
-    QVariant varData;
     Dialog_Data dialogedit;
 
-    varData = m_sneakerList[index-1];
+    SneakerItem sneaker = m_sneakerList[index-1];
 
     dialogedit.setModal(true);
-    dialogedit.setData(varData);
+    dialogedit.setData(sneaker);
 
     if (dialogedit.exec()==QDialog::Accepted)
     {
-        if (varData != dialogedit.getData())
+        if (sneaker != dialogedit.getData())
         {
-            varData = dialogedit.getData();
-            editSneaker(varData, index);
+            sneaker = dialogedit.getData();
+            editSneaker(sneaker, index);
         }
     }
 }
@@ -610,7 +608,7 @@ void MainWindow::action_SortSneakers_triggered(QAction *action)
         return;
     }
 
-    QList<QVariant> copyList = m_sneakerList;
+    QList<SneakerItem> copyList = m_sneakerList;
     m_sneakerList.clear();
 
     clearScrollGrid();
@@ -651,7 +649,7 @@ void MainWindow::deleteItem_triggered()
         QAction *action = qobject_cast<QAction *>(sender());
         int index = action->data().toInt();
 
-        QList<QVariant> copyList = m_sneakerList;
+        QList<SneakerItem> copyList = m_sneakerList;
         copyList.removeAt(index-1);
         m_sneakerList.clear();
 
@@ -672,15 +670,13 @@ void MainWindow::deleteItem_triggered()
 
 void MainWindow::on_action_AddSneaker_triggered()
 {
-    QVariant varData;
-
     Dialog_Data dialogadd;
     dialogadd.setModal(true);
 
     if (dialogadd.exec()==QDialog::Accepted)
     {
-        varData = dialogadd.getData();
-        addSneaker(varData);
+        SneakerItem sneaker = dialogadd.getData();
+        addSneaker(sneaker);
     }
 }
 
@@ -722,8 +718,17 @@ void MainWindow::on_action_Import_triggered()
 
     for (int i = 0; i < sneakerDetails.size(); i++)
     {
-        QVariant brand, model, cw, modelnr, releasedate, buydate, price, seller, shoesize, image1, image2, sneakerVar;
-        QList<QVariant> varList;
+        QString brand;
+        QString model;
+        QString colorway;
+        QString modelnr;
+        QDate releasedate;
+        QDate buydate;
+        double price;
+        QString seller;
+        double size;
+        QImage image1;
+        QImage image2;
         QLocale german(QLocale::German);
 
         progress.setValue(i);
@@ -733,19 +738,18 @@ void MainWindow::on_action_Import_triggered()
             break;
         }
 
-        brand = QVariant(sneakerDetails[i][0]);
-        model = QVariant(sneakerDetails[i][1]);
-        cw = QVariant(sneakerDetails[i][2]);
-        shoesize = QVariant(sneakerDetails[i][3].toDouble());
-        modelnr = QVariant(sneakerDetails[i][4]);
-        releasedate = QVariant(QDate::fromString(sneakerDetails[i][5],"dd.MM.yyyy"));
-        buydate = QVariant(QDate::fromString(sneakerDetails[i][6],"dd.MM.yyyy"));
-        price = QVariant(german.toDouble(sneakerDetails[i][7]));
-        seller = QVariant(sneakerDetails[i][8]);
+        brand = sneakerDetails[i][0];
+        model = sneakerDetails[i][1];
+        colorway = sneakerDetails[i][2];
+        size = sneakerDetails[i][3].toDouble();
+        modelnr = sneakerDetails[i][4];
+        releasedate = QDate::fromString(sneakerDetails[i][5],"dd.MM.yyyy");
+        buydate = QDate::fromString(sneakerDetails[i][6],"dd.MM.yyyy");
+        price = german.toDouble(sneakerDetails[i][7]);
+        seller = sneakerDetails[i][8];
 
-        varList << brand << model << cw << modelnr << releasedate << buydate << price << shoesize << seller << image1 << image2;
-        sneakerVar = QVariant(varList);
-        addSneaker(sneakerVar);
+        SneakerItem sneaker(brand, model, colorway, modelnr, releasedate, buydate, price, seller, size, image1, image2);
+        addSneaker(sneaker);
     }
 
     progress.setValue(sneakerDetails.size());
@@ -769,7 +773,7 @@ void MainWindow::resize_timeout()
 {
     m_resizeTimer->stop();
 
-    QList<QVariant> copyList = m_sneakerList;
+    QList<SneakerItem> copyList = m_sneakerList;
     m_sneakerList.clear();
 
     clearScrollGrid();
