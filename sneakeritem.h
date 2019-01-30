@@ -4,7 +4,6 @@
 #include <QDate>
 #include <QImage>
 #include <QtCore/QDataStream>
-//#include <QVariant>
 
 class SneakerItem
 {
@@ -14,6 +13,7 @@ public:
     SneakerItem(const QString brand, const QString model, const QString colorway, const QString modelnr, const QDate releasedate, const QDate buydate, const double price,
                 const QString seller, const double size, const QImage &image1, const QImage &image2);
 
+    bool operator==(const SneakerItem &sneaker);
     bool operator!=(const SneakerItem &sneaker);
     double getPrice() const { return m_price; }
     double getSize() const { return m_size; }

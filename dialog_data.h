@@ -4,7 +4,6 @@
 #include "sneakeritem.h"
 
 #include <QDialog>
-#include <QVariant>
 
 namespace Ui {
 class Dialog_Data;

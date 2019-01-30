@@ -120,9 +120,6 @@ void Dialog_Statistics::setPriceTimeDiagram()
 
 void Dialog_Statistics::setTable()
 {
-    // QList<QString> brandList, modelList, cwList, modelnrList, releasedateList, buydateList, sellerList, priceList, sizeList;
-    // QList<double> priceList, sizeList;
-
     m_tableWidget->setRowCount(m_sneakerList.size());
     m_tableWidget->setColumnCount(9);
     m_tableWidget->setHorizontalHeaderLabels(QStringList() << "Marke" << "Modell" << "Colorway" << "Modellnummer" << "Releasedatum"
@@ -163,12 +160,12 @@ void Dialog_Statistics::setTable()
         QTableWidgetItem *itemPrice = new QTableWidgetItem;
         itemPrice->setData(Qt::EditRole, m_sneakerList[i].getPrice());
         m_tableWidget->setItem(i, 6, itemPrice);
-        QTableWidgetItem *itemSeller = new QTableWidgetItem;
-        itemSeller->setData(Qt::EditRole, m_sneakerList[i].getSeller());
-        m_tableWidget->setItem(i, 7, itemSeller);
         QTableWidgetItem *itemSize = new QTableWidgetItem;
         itemSize->setData(Qt::EditRole, m_sneakerList[i].getSize());
-        m_tableWidget->setItem(i, 8, itemSize);
+        m_tableWidget->setItem(i, 7, itemSize);
+        QTableWidgetItem *itemSeller = new QTableWidgetItem;
+        itemSeller->setData(Qt::EditRole, m_sneakerList[i].getSeller());
+        m_tableWidget->setItem(i, 8, itemSeller);
     }
 
     m_tableWidget->sortItems(0, m_sortOrders[0]);

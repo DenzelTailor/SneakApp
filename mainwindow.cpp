@@ -47,6 +47,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->scrollAreaWidgetContents->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->scrollAreaWidgetContents, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextMenu_show(QPoint)));
 
+    qRegisterMetaTypeStreamOperators<QList<SneakerItem>>("QList<SneakerItem>");
+
     loadSettings();
 }
 
@@ -375,7 +377,6 @@ void MainWindow::loadSettings()
     clearScrollGrid();
     initScrollGrid();
 
-    qRegisterMetaTypeStreamOperators<SneakerItem>("SneakerItem");
     QSettings savedSneakers(QDir::currentPath() + "/sneakers.ini", QSettings::IniFormat);
     QList<SneakerItem> savedList = savedSneakers.value("sneakerlist").value<QList<SneakerItem>>();
     for (int i = 0; i < savedList.size(); i++)
@@ -396,7 +397,6 @@ void MainWindow::saveSettings()
     windowConfig.setValue("maximized", this->isMaximized());
     windowConfig.endGroup();
 
-    qRegisterMetaTypeStreamOperators<SneakerItem>("SneakerItem");
     QSettings savedSneakers(QDir::currentPath() + "/sneakers.ini", QSettings::IniFormat);
     savedSneakers.setValue("sneakerlist", QVariant::fromValue(m_sneakerList));
 }
@@ -536,10 +536,11 @@ void MainWindow::action_EditSneaker_triggered()
 
     if (dialogedit.exec()==QDialog::Accepted)
     {
-        if (sneaker != dialogedit.getData())
-        {
-            sneaker = dialogedit.getData();
-            editSneaker(sneaker, index);
+        SneakerItem sneakerEdited = dialogedit.getData();
+
+        if (sneaker != sneakerEdited)
+        { 
+            editSneaker(sneakerEdited, index);
         }
     }
 }
@@ -555,10 +556,11 @@ void MainWindow::action_EditSneaker_triggered(int index)
 
     if (dialogedit.exec()==QDialog::Accepted)
     {
-        if (sneaker != dialogedit.getData())
+        SneakerItem sneakerEdited = dialogedit.getData();
+
+        if (sneaker != sneakerEdited)
         {
-            sneaker = dialogedit.getData();
-            editSneaker(sneaker, index);
+            editSneaker(sneakerEdited, index);
         }
     }
 }

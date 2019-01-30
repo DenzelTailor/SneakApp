@@ -62,19 +62,24 @@ SneakerItem::SneakerItem(const QString brand, const QString model, const QString
     }
 }
 
+bool SneakerItem::operator==(const SneakerItem &sneaker)
+{
+    return this->m_brand == sneaker.m_brand &&
+            this->m_model == sneaker.m_model &&
+            this->m_colorway == sneaker.m_colorway &&
+            this->m_modelnr == sneaker.m_modelnr &&
+            this->m_releasedate == sneaker.m_releasedate &&
+            this->m_buydate == sneaker.m_buydate &&
+            (fabs(this->m_price - sneaker.m_price) <= 0.01) &&
+            this->m_seller == sneaker.m_seller &&
+            (fabs(this->m_size - sneaker.m_size) <= 0.5) &&
+            this->m_image1 == sneaker.m_image1 &&
+            this->m_image2 == sneaker.m_image2;
+}
+
 bool SneakerItem::operator!=(const SneakerItem &sneaker)
 {
-    return this->m_brand != sneaker.m_brand &&
-            this->m_model != sneaker.m_model &&
-            this->m_colorway != sneaker.m_colorway &&
-            this->m_modelnr != sneaker.m_modelnr &&
-            this->m_releasedate != sneaker.m_releasedate &&
-            this->m_buydate != sneaker.m_buydate &&
-            (fabs(this->m_price - sneaker.m_price) >= 0.009) &&
-            this->m_seller != sneaker.m_seller &&
-            (fabs(this->m_size - sneaker.m_size) >= 0.4) &&
-            this->m_image1 != sneaker.m_image1 &&
-            this->m_image2 != sneaker.m_image2;
+    return !(*this == sneaker);
 }
 
 QDataStream & operator<<(QDataStream &out, const SneakerItem &sneaker)
