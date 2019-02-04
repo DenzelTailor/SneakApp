@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 
 #include <QBrush>
+#include <QBuffer>
 #include <QCloseEvent>
 #include <QDate>
 #include <QDebug>
@@ -19,6 +20,7 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlError>
 #include <QtSql/QSqlQuery>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -229,8 +231,7 @@ void MainWindow::clearScrollGrid()
 
 void MainWindow::createDatabase()
 {
-    QSqlDatabase db;
-    db = QSqlDatabase::addDatabase("QSQLITE");
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(QDir::currentPath() + "/sneakers.sqlite");
 
     if (!db.open())
@@ -248,7 +249,9 @@ void MainWindow::createDatabase()
                     "BuyingDate DATETIME,"
                     "Price double,"
                     "Size double,"
-                    "Seller VARCHAR(100));";
+                    "Seller VARCHAR(100),"
+                    "Image1 BLOB,"
+                    "Image2 BLOB);";
 
     QSqlQuery qry;
 
@@ -350,6 +353,48 @@ void MainWindow::initScrollGrid()
     calcThumbnailSize(&layoutHSpace, calcAvailSpace(marginLeft,marginRight), thumbSize_max, hSpacing);
 }
 
+void MainWindow::loadDatabase()
+{
+    if(QFile::exists(QDir::currentPath() + "/sneakers.sqlite"))
+    {
+        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+        db.setDatabaseName(QDir::currentPath() + "/sneakers.sqlite");
+
+        if (!db.open())
+        {
+            qDebug() << "loadDatabase(): db.open() failed";
+            qDebug() << db.lastError().text();
+        }
+
+        QSqlQuery qry;
+        qry.exec("SELECT * FROM sneakerTable");
+
+        while (qry.next())
+        {
+            QString brand = qry.value(1).toString();
+            QString model = qry.value(2).toString();
+            QString colorway = qry.value(3).toString();
+            QString modelnr = qry.value(4).toString();
+            QDate releasedate = qry.value(5).toDate();
+            QDate buydate = qry.value(6).toDate();
+            double price = qry.value(7).toDouble();
+            double size = qry.value(8).toDouble();
+            QString seller = qry.value(9).toString();
+            QImage image1;
+            QImage image2;
+            image1.loadFromData(qry.value(10).toByteArray());
+            image2.loadFromData(qry.value(11).toByteArray());
+
+            SneakerItem sneaker(brand, model, colorway, modelnr, releasedate, buydate, price, seller, size, image1, image2);
+            addSneaker(sneaker);
+        }
+    }
+    else
+    {
+        createDatabase();
+    }
+}
+
 void MainWindow::loadSettings()
 {
     QSettings windowConfig(QDir::currentPath() + "/config.ini", QSettings::IniFormat);
@@ -377,14 +422,28 @@ void MainWindow::loadSettings()
     clearScrollGrid();
     initScrollGrid();
 
+    loadDatabase();
+
+    /*
     QSettings savedSneakers(QDir::currentPath() + "/sneakers.ini", QSettings::IniFormat);
     QList<SneakerItem> savedList = savedSneakers.value("sneakerlist").value<QList<SneakerItem>>();
     for (int i = 0; i < savedList.size(); i++)
     {
         addSneaker(savedList[i]);
     }
+    */
+}
 
-    createDatabase();
+void MainWindow::saveDatabase()
+{
+    if(QFile::exists(QDir::currentPath() + "/sneakers.sqlite"))
+    {
+        updateDatabase();
+    }
+    else
+    {
+        createDatabase();
+    }
 }
 
 void MainWindow::saveSettings()
@@ -397,16 +456,46 @@ void MainWindow::saveSettings()
     windowConfig.setValue("maximized", this->isMaximized());
     windowConfig.endGroup();
 
-    QSettings savedSneakers(QDir::currentPath() + "/sneakers.ini", QSettings::IniFormat);
-    savedSneakers.setValue("sneakerlist", QVariant::fromValue(m_sneakerList));
+    saveDatabase();
+
+    //QSettings savedSneakers(QDir::currentPath() + "/sneakers.ini", QSettings::IniFormat);
+    //savedSneakers.setValue("sneakerlist", QVariant::fromValue(m_sneakerList));
 }
 
 void MainWindow::updateDatabase()
 {
+    QSqlDatabase db = QSqlDatabase::database();
+
+    if (!db.open())
+    {
+        qDebug() << "updateDatabase(): db.open() failed";
+        qDebug() << db.lastError().text();
+    }
+
     QSqlQuery qry;
+    qry.prepare("DELETE FROM sneakerTable");
+
+    if (!qry.exec())
+    {
+        qDebug() << "updateDatabase(): qry.exec() failed";
+        qDebug() << qry.lastError().text();
+    }
 
     for (int i = 0; i < m_sneakerList.size(); i++)
     {
+        QImage image1 = m_sneakerList[i].getImage1();
+        QImage image2 = m_sneakerList[i].getImage2();
+
+        QByteArray byteArray1;
+        QByteArray byteArray2;
+        QBuffer buffer(&byteArray1);
+        buffer.open(QIODevice::WriteOnly);
+        image1.save(&buffer, "PNG");
+        buffer.close();
+        buffer.setBuffer(&byteArray2);
+        buffer.open(QIODevice::WriteOnly);
+        image2.save(&buffer, "PNG");
+
         qry.prepare("INSERT INTO sneakerTable ("
                     "ID,"
                     "Brand,"
@@ -417,8 +506,10 @@ void MainWindow::updateDatabase()
                     "BuyingDate,"
                     "Price,"
                     "Size,"
-                    "Seller)"
-                    "VALUES (?,?,?,?,?,?,?,?,?,?);");
+                    "Seller,"
+                    "Image1,"
+                    "Image2)"
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
 
         qry.addBindValue(i+1);
         qry.addBindValue(m_sneakerList[i].getBrand());
@@ -430,10 +521,13 @@ void MainWindow::updateDatabase()
         qry.addBindValue(m_sneakerList[i].getPrice());
         qry.addBindValue(m_sneakerList[i].getSize());
         qry.addBindValue(m_sneakerList[i].getSeller());
+        qry.addBindValue(byteArray1);
+        qry.addBindValue(byteArray2);
 
         if (!qry.exec())
         {
-            qDebug() << "error adding values to db";
+            qDebug() << "updateDatabase(): qry.exec() failed";
+            qDebug() << qry.lastError().text();
         }
     }
 }

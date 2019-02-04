@@ -50,7 +50,9 @@ private:
     void deleteItem(QList<int> deleteList);
     void editSneaker(const SneakerItem &sneaker, int index);
     void initScrollGrid();
+    void loadDatabase();
     void loadSettings();
+    void saveDatabase();
     void saveSettings();
     void updateDatabase();
 
